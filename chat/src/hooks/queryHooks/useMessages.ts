@@ -1,9 +1,12 @@
+import { Database } from '@/types/supabase';
 import { supabase } from '@/utilities/supabaseClient';
-import { getAllMessages } from '@/utilities/supabaseMethods';
+import { getAllMessages, getUser } from '@/utilities/supabaseMethods';
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
 
-export const useMessages = (): UseQueryResult<any['Row'][], unknown> => {
+type MessageType = Database['public']['Tables']['messages']['Row'];
+
+export const useMessages = (): UseQueryResult<MessageType[], unknown> => {
     return useQuery({
         queryKey: ['message'],
         queryFn: () => getAllMessages()
@@ -73,7 +76,7 @@ export const useChannelSubscription = async (callback: any, hotelId: string) => 
         const { data: user, error: userError } = await supabase.auth.getUser();
         const channelName = `hotel_${hotelId}`;
         supabaseChannelRef.current = supabase
-            .channel(channelName) 
+            .channel(channelName)
             .on(
                 'postgres_changes',
                 {
@@ -155,16 +158,16 @@ export const useOnlineUserSubscription = async (hotelId: string, guestId: string
 };
 
 type Props = {
-    hotelId: string;
+    getId: string;
     message: string;
 };
 
-export const sendMessages = async ({ hotelId, message }: Props) => {
-    const { data: user, error: userError } = await supabase.auth.getUser();
+export const sendMessages = async ({ message, getId }: Props) => {
+    const user = await getUser();
     const { data, error } = await supabase
         .from('messages')
-        .insert({ content: message, profile_id: user.user.id, hotel_id: hotelId, status: 'unread' })
+        .insert({ content: message, profile_id: user!.id, get_id: getId })
         .select();
 
-    return { data, error, userError };
+    return { data, error };
 };

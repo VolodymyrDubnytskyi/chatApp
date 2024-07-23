@@ -1,4 +1,3 @@
-import './App.css'
 import {
   createBrowserRouter,
   RouterProvider,
@@ -11,7 +10,8 @@ import { Toaster } from "@/components/ui/sonner"
 import {
   QueryClient,
   QueryClientProvider,
-} from '@tanstack/react-query'
+} from '@tanstack/react-query';
+import { ThemeProvider } from '@/components/ui/theme-provider';
 
 const queryClient = new QueryClient()
 
@@ -37,8 +37,10 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Toaster />
-      <RouterProvider router={router} />
+      <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+        <Toaster />
+        <RouterProvider router={router} />
+      </ThemeProvider>
     </QueryClientProvider>
 
   )

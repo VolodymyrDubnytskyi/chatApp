@@ -31,6 +31,7 @@ export const getUser = async () => {
 
 export const getAllUser = async () => {
     const { data, error } = await supabase.from('profiles').select('*');
+    
     if (error) {
         toast.error("Event has been created", {
             description: error.message,
