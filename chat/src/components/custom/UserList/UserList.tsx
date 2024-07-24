@@ -1,24 +1,33 @@
+import { useMemo, useState } from "react";
+import { useParams } from "react-router-dom";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useUsers } from "@/hooks/queryHooks/useUsers";
-import { useEffect } from "react";
 import { User } from "./components/User/User";
-import { useChat } from "@/hooks/useChat";
+import { convertToObjectArray } from "@/utilities/convertObjectToArray";
+import { UserPresenceInfo } from "@/types/supabase";
+import { useOnlineUserSubscription } from "@/hooks/queryHooks/useOnlineUserSubscription";
 
 export const UserList = () => {
-  const { isPending, data: users } = useUsers();
-  const { handleActiveUser } = useChat();
-  const currentUser = users?.[0];
+  const { data: users } = useUsers();
+  const [onlineUsers, setOnlineUsers] = useState<UserPresenceInfo[]>([]);
+  const { userId } = useParams();
 
-  useEffect(() => {
-    if (!currentUser) return;
-    handleActiveUser(currentUser)
-  }, [currentUser])
+  useOnlineUserSubscription((onlineUsers) => { setOnlineUsers(convertToObjectArray(onlineUsers)) })
+
+  const usersList = useMemo(() => {
+    return users?.map((user) => (
+      <User
+        key={user.user_id}
+        {...user}
+        activeUserId={userId}
+        isUserOnline={onlineUsers.some((el) => el.presence?.user_id === user.user_id)}
+      />
+    ))
+  }, [users, userId, onlineUsers])
 
   return (
     <ScrollArea className="h-full w-[500px] rounded-md border p-4">
-      {users?.map((user) => (
-        <User key={user.user_id} {...user} handleActiveUser={handleActiveUser}/>
-      ))}
+      {usersList}
     </ScrollArea>
   )
 }

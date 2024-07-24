@@ -1,5 +1,8 @@
+import { getAllUser } from "@/api/get/getAllUser";
+import { getUser } from "@/api/get/getUser";
+import { getUserProfile } from "@/api/get/getUserProfile";
 import { UserType } from "@/types/supabase";
-import { getAllUser, getUser } from "@/utilities/supabaseMethods"
+import { User } from "@supabase/supabase-js";
 import { useQuery, UseQueryResult } from "@tanstack/react-query"
 
 export const useUsers = (): UseQueryResult<UserType[], unknown> => {
@@ -10,10 +13,18 @@ export const useUsers = (): UseQueryResult<UserType[], unknown> => {
     })
 };
 
-export const useUser = (): UseQueryResult<any, unknown> => {
+export const useUser = (): UseQueryResult<User, unknown> => {
 
     return useQuery({
         queryKey: ['user'],
         queryFn: () => getUser()
+    })
+};
+
+export const useUserProfile = (): UseQueryResult<UserType, unknown> => {
+
+    return useQuery({
+        queryKey: ['userProfile'],
+        queryFn: () => getUserProfile()
     })
 };

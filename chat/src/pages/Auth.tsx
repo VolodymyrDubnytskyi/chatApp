@@ -1,25 +1,19 @@
+import { useForm } from "react-hook-form"
+import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { supabase } from "@/utilities/supabaseClient"
-import { Session } from "@supabase/supabase-js"
-import { useEffect, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import authImage from '../assets/auth-image.jpg'
 import {
     Form,
     FormControl,
-    FormDescription,
     FormField,
     FormItem,
     FormLabel,
     FormMessage,
 } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
-import { useToast } from "@/components/ui/use-toast"
-
+import { signInWithPassword } from "@/api/auth/signInWithPassword"
+import authImage from '../assets/auth-image.jpg'
 
 const formSchema = z.object({
     email: z
@@ -31,11 +25,8 @@ const formSchema = z.object({
     }),
 })
 
-
 export function Auth() {
     const navigation = useNavigate();
-    // const { toast } = useToast()
-    // const [session, setSession] = useState<Session | null>(null);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -46,42 +37,12 @@ export function Auth() {
     })
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
+        const success = await signInWithPassword(values);
 
-        const { data, error } = await supabase.auth.signInWithPassword({
-            email: values.email,
-            password: values.password,
-        })
-
-        if (data) {
+        if (success) {
             navigation('/')
         }
-
-        if (error) {
-            console.log(error)
-            // toast({
-            //     variant: "destructive",
-            //     title: error.name,
-            //     description: error.message,
-            // })
-        }
-
-        console.log({ data, error })
     }
-
-
-    // useEffect(() => {
-    //     supabase.auth.getSession().then(({ data: { session } }) => {
-    //         setSession(session)
-    //     })
-
-    //     const {
-    //         data: { subscription },
-    //     } = supabase.auth.onAuthStateChange((_event, session) => {
-    //         setSession(session)
-    //     })
-
-    //     return () => subscription.unsubscribe()
-    // }, [])
 
     return (
         <div className="w-full lg:grid lg:min-h-[600px] lg:grid-cols-2 xl:min-h-[800px] h-screen">
@@ -125,7 +86,6 @@ export function Auth() {
                                             </FormItem>
                                         )}
                                     />
-                                    {/* <Input id="password" type="password" required /> */}
                                 </div>
                                 <Button type="submit" className="w-full"> Login</Button>
                                 <Button variant="outline" className="w-full">
@@ -133,33 +93,6 @@ export function Auth() {
                                 </Button>
                             </form>
                         </Form>
-                        {/* <div className="grid gap-2">
-                            <Label htmlFor="email">Email</Label>
-                            <Input
-                                id="email"
-                                type="email"
-                                placeholder="m@example.com"
-                                required
-                            />
-                        </div>
-                        <div className="grid gap-2">
-                            <div className="flex items-center">
-                                <Label htmlFor="password">Password</Label>
-                                <Link
-                                    to="/forgot-password"
-                                    className="ml-auto inline-block text-sm underline"
-                                >
-                                    Forgot your password?
-                                </Link>
-                            </div>
-                            <Input id="password" type="password" required />
-                        </div>
-                        <Button type="submit" className="w-full">
-                            Login
-                        </Button>
-                        <Button variant="outline" className="w-full">
-                            Login with Google
-                        </Button> */}
                     </div>
                     <div className="mt-4 text-center text-sm">
                         Don&apos;t have an account?{" "}

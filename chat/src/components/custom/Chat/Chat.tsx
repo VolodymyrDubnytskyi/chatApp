@@ -1,22 +1,13 @@
-
-import { Messages } from "../Messages/Messages";
-import { ChatInputBox } from "../ChatInputBox/ChatInputBox";
-import { UserList } from "../UserList/UserList";
+import { Outlet } from "react-router-dom";
 import { ChatProvider } from "@/hooks/useChat";
-import { ChatHeader } from "../ChatHeader/ChatHeader";
+import { UserList } from "../UserList/UserList";
 
 export const Chat = () => {
     return (
         <ChatProvider>
-            <div className="flex items-end h-screen p-1">
+            <div className="flex items-end h-[calc(100vh-101px)] p-1">
                 <UserList />
-                <div className="flex flex-col w-full h-full justify-between">
-                    <ChatHeader />
-                    <div className="w-full">
-                        <Messages />
-                        <ChatInputBox />
-                    </div>
-                </div>
+                <Outlet />
             </div>
         </ChatProvider>
     )

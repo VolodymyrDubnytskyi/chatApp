@@ -1,33 +1,31 @@
-import { Database } from "@/types/supabase";
-import { createContext, useCallback, useContext, useMemo, useState } from "react";
-
-type User = Database['public']['Tables']['profiles']['Row'];
+import { createContext, useContext, useMemo, useState } from "react";
+import { useUser } from "./queryHooks/useUsers";
+import { MessageType } from "@/types/supabase";
+import { useMessagesSubscription } from "./queryHooks/useMessagesSubscription";
 
 type ChatContextType = {
-    activeUser: User | null;
-    handleActiveUser: (user: User) => void;
+    newMessage: MessageType | null
 }
 
 const defaultValue = {
-    activeUser: null,
-    handleActiveUser: () => { }
+    newMessage: null
 }
 
 const ChatContext = createContext<ChatContextType>(defaultValue)
 
 const ChatProvider = ({ children }: { children: React.ReactNode }) => {
-    const [activeUser, setActiveUser] = useState<User | null>(null);
+    const [newMessage, setNewMessage] = useState<MessageType | null>(null);
+    const { data: user } = useUser();
 
-    const handleActiveUser = useCallback((user: User) => {
-        setActiveUser(user)
-    }, []);
+    useMessagesSubscription((newMessage) => {
+        setNewMessage(newMessage)
+    }, user?.id);
 
     const value = useMemo(() => {
         return {
-            activeUser,
-            handleActiveUser
+            newMessage
         }
-    }, [activeUser, handleActiveUser])
+    }, [newMessage])
 
     return (
         <ChatContext.Provider value={value}>
